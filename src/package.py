@@ -380,7 +380,12 @@ def _packaging_to_spack_version(v: pv.Version) -> vn.StandardVersion:
     if v.epoch > 0:
         print(f"warning: epoch {v} isn't really supported", file=sys.stderr)
         release.append(v.epoch)
-    release.extend(v.release)
+    # release can be None here when the version is parsed as a LegacyVersion
+    if v.release is not None:
+        release.extend(v.release)
+    else:
+        # Return a StandardVersion from str(v)
+        return spack.version.ver(str(v)).lo  # Just pick lo
     separators = ["."] * (len(release) - 1)
 
     if v.pre is not None:
